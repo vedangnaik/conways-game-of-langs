@@ -1,4 +1,12 @@
 import time
+import argparse
+from pathlib import Path
+
+parser = argparse.ArgumentParser(description="Conway's Game of Life, in Python")
+parser.add_argument('board_size', type=int, help="Side length of simulated board.", metavar='size')
+parser.add_argument('num_timesteps', type=int, help="Number of timesteps to simulate.", metavar='N')
+parser.add_argument('--input', type=argparse.FileType('r'), help="path to text file of board's initial state. default: ./start.txt", default="./start.txt", metavar='file')
+parser.add_argument('--output', type=Path, help="path to a directory to write temporary files to. default: ./temp", default="./temp", metavar='dir')
 
 class Board:
     def __init__(self, size):
@@ -16,12 +24,6 @@ class Board:
     
     def unset(self, row, col):
         self.__board[row][col] = '0'
-    
-    # def __str__(self):
-    #     s = ""
-    #     for row in range(self.size):
-    #         s = s + " ".join(self.__board[row]) + "\n"
-    #     return s
 
 def getNumNeighbors(board, row, col):
     count = 0
@@ -36,15 +38,6 @@ def getNumNeighbors(board, row, col):
     return count
 
 def saveAsPBMP1(board, filename):
-    # f = open(filename, "wb")
-    # # Header
-    # f.write(bytes([80, 52, 10, board.size, 32, board.size, 10]))
-    # # Body
-    # for row in range(board.size):
-    #     f.write(bytes(board.getRow(row)))
-    #     f.write(bytes([10]))
-    # f.close()
-
     f = open(filename, "w")
     f.write(f"P1\n{board.size} {board.size}\n")
     for row in range(board.size):
@@ -52,24 +45,25 @@ def saveAsPBMP1(board, filename):
     f.close()
 
 def main():
+    args = parser.parse_args()
+
     # Set up boards and time stuff
-    size = 25
-    now = Board(size)
+    now = Board(args.board_size)
     timestep = 0
 
     # Read in initial state
-    with open("start.txt", 'r') as f:
-        for line in f.readlines():
-            now.set(*map(int, line.strip().split()))
+    for line in args.input.readlines():
+        now.set(*map(int, line.strip().split()))
+    args.input.close()
 
     # Infinitely simulate next timestep and save image.
-    while True:
-        saveAsPBMP1(now, f"{timestep}.pbm")
+    while timestep < args.num_timesteps:
+        saveAsPBMP1(now, f"{args.output}/{timestep}.pbm")
         timestep += 1
         
-        nxt = Board(size)
-        for row in range(size):
-            for col in range(size):
+        nxt = Board(args.board_size)
+        for row in range(args.board_size):
+            for col in range(args.board_size):
                 numNeighbors = getNumNeighbors(now, row, col)
                 if now.get(row, col):
                     if 2 <= numNeighbors <= 3:
@@ -78,7 +72,6 @@ def main():
                     if numNeighbors == 3:
                         nxt.set(row, col)
         now = nxt
-        # time.sleep(1)
         
                 
 if __name__ == "__main__":
