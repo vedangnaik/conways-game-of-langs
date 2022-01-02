@@ -1,5 +1,5 @@
 # Convert all pbms to jpeg and resize them
-Get-ChildItem temp -Filter *.pbm | Foreach-Object {
+Get-ChildItem . -Filter *.pbm | Foreach-Object {
     $file = $_.FullName
     $filename = $_.BaseName
     $dir = $_.DirectoryName
@@ -7,8 +7,8 @@ Get-ChildItem temp -Filter *.pbm | Foreach-Object {
     rm $_.FullName
 }
 # Create video out of pictures
-ffmpeg -y -f image2 -r 25 -i ./temp/%d.jpg out.mp4
+ffmpeg -y -f image2 -r 25 -i %d.jpg out.mp4
 # Delete jpgs
-Get-ChildItem temp -Filter *.jpg | Foreach-Object {
+Get-ChildItem . -Filter *.jpg | Foreach-Object {
     rm $_.FullName
 }

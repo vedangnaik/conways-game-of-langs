@@ -6,7 +6,6 @@ parser = argparse.ArgumentParser(description="Conway's Game of Life, in Python")
 parser.add_argument('board_size', type=int, help="Side length of simulated board.", metavar='size')
 parser.add_argument('num_timesteps', type=int, help="Number of timesteps to simulate.", metavar='N')
 parser.add_argument('--input', type=argparse.FileType('r'), help="path to text file of board's initial state. default: ./start.txt", default="./start.txt", metavar='file')
-parser.add_argument('--output', type=Path, help="path to a directory to write temporary files to. default: ./temp", default="./temp", metavar='dir')
 
 class Board:
     def __init__(self, size):
@@ -58,7 +57,7 @@ def main():
 
     # Infinitely simulate next timestep and save image.
     while timestep < args.num_timesteps:
-        saveAsPBMP1(now, f"{args.output}/{timestep}.pbm")
+        saveAsPBMP1(now, f"{timestep}.pbm")
         timestep += 1
         
         nxt = Board(args.board_size)
