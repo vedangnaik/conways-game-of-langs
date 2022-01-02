@@ -34,26 +34,29 @@ def getNumNeighbors(board, row, col):
 
 def main():
     # Set up boards and time stuff
-    size = 3
+    size = 5
     now = Board(size)
     timestep = 0
 
     # Read in initial state
-    # TODO
+    with open("start.txt", 'r') as f:
+        for line in f.readlines():
+            now.set(*map(int, line.strip().split()))
 
     # Infinitely simulate next timestep and save image.
     while True:
+        print(now)
         nxt = Board(size)
         for row in range(size):
             for col in range(size):
                 numNeighbors = getNumNeighbors(now, row, col)
-                if now.get(row, col) and (numNeighbors < 2 or numNeighbors > 3):
-                    nxt.unset(row, col)
+                if now.get(row, col):
+                    if 2 <= numNeighbors <= 3:
+                        nxt.set(row, col)
                 else:
                     if numNeighbors == 3:
                         nxt.set(row, col)
         now = nxt
-        print(now)
         time.sleep(1)
                 
 if __name__ == "__main__":
