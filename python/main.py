@@ -20,20 +20,17 @@ class Board:
 
     def set(self, row, col):
         self.__board[row][col] = '1'
-    
-    def unset(self, row, col):
-        self.__board[row][col] = '0'
 
 def getNumNeighbors(board, row, col):
     count = 0
-    if board.get((row-1) % board.size, (col-1) % board.size): count += 1
-    if board.get((row-1) % board.size, (col  ) % board.size): count += 1
-    if board.get((row-1) % board.size, (col+1) % board.size): count += 1
-    if board.get((row  ) % board.size, (col-1) % board.size): count += 1
-    if board.get((row  ) % board.size, (col+1) % board.size): count += 1
-    if board.get((row+1) % board.size, (col-1) % board.size): count += 1
-    if board.get((row+1) % board.size, (col  ) % board.size): count += 1
-    if board.get((row+1) % board.size, (col+1) % board.size): count += 1
+    if board.get((row-1) % board.size, (col-1) % board.size) == '1': count += 1
+    if board.get((row-1) % board.size, (col  ) % board.size) == '1': count += 1
+    if board.get((row-1) % board.size, (col+1) % board.size) == '1': count += 1
+    if board.get((row  ) % board.size, (col-1) % board.size) == '1': count += 1
+    if board.get((row  ) % board.size, (col+1) % board.size) == '1': count += 1
+    if board.get((row+1) % board.size, (col-1) % board.size) == '1': count += 1
+    if board.get((row+1) % board.size, (col  ) % board.size) == '1': count += 1
+    if board.get((row+1) % board.size, (col+1) % board.size) == '1': count += 1
     return count
 
 def saveAsPBMP1(board, filename):
@@ -55,7 +52,7 @@ def main():
         now.set(*map(int, line.strip().split()))
     args.input.close()
 
-    # Infinitely simulate next timestep and save image.
+    # Simulate next timestep and save image until simulation is done.
     while timestep < args.num_timesteps:
         saveAsPBMP1(now, f"{timestep}.pbm")
         timestep += 1
@@ -64,7 +61,7 @@ def main():
         for row in range(args.board_size):
             for col in range(args.board_size):
                 numNeighbors = getNumNeighbors(now, row, col)
-                if now.get(row, col):
+                if now.get(row, col) == '1':
                     if 2 <= numNeighbors <= 3:
                         nxt.set(row, col)
                 else:

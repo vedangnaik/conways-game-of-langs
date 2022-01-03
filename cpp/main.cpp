@@ -7,14 +7,14 @@
 uint64_t getNumNeighbors(Board& board, uint64_t row, uint64_t col)
 {
     uint64_t count{0};
-    if (board.get((row-1) % board.size, (col-1) % board.size)) count += 1;
-    if (board.get((row-1) % board.size, (col  ) % board.size)) count += 1;
-    if (board.get((row-1) % board.size, (col+1) % board.size)) count += 1;
-    if (board.get((row  ) % board.size, (col-1) % board.size)) count += 1;
-    if (board.get((row  ) % board.size, (col+1) % board.size)) count += 1;
-    if (board.get((row+1) % board.size, (col-1) % board.size)) count += 1;
-    if (board.get((row+1) % board.size, (col  ) % board.size)) count += 1;
-    if (board.get((row+1) % board.size, (col+1) % board.size)) count += 1;
+    if (board.get((row-1) % board.size, (col-1) % board.size) == '1') count += 1;
+    if (board.get((row-1) % board.size, (col  ) % board.size) == '1') count += 1;
+    if (board.get((row-1) % board.size, (col+1) % board.size) == '1') count += 1;
+    if (board.get((row  ) % board.size, (col-1) % board.size) == '1') count += 1;
+    if (board.get((row  ) % board.size, (col+1) % board.size) == '1') count += 1;
+    if (board.get((row+1) % board.size, (col-1) % board.size) == '1') count += 1;
+    if (board.get((row+1) % board.size, (col  ) % board.size) == '1') count += 1;
+    if (board.get((row+1) % board.size, (col+1) % board.size) == '1') count += 1;
     return count;
 }
 
@@ -83,6 +83,7 @@ optional arguments:
         for (uint64_t row{0}; row < b.size; row++) {
             for (uint64_t col{0}; col < b.size; col++) {
                 uint64_t numNeighbors = getNumNeighbors(b, row, col);
+                // std::cout << numNeighbors << std::endl;
                 if (b.get(row, col) == '1') {
                     if (2 <= numNeighbors && numNeighbors <= 3) next.set(row, col);
                 } else {
