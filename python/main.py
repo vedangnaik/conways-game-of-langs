@@ -71,7 +71,6 @@ def main():
                     if numNeighbors == 3:
                         nxt.set(row, col)
         now = nxt
-        
                 
 if __name__ == "__main__":
     main()
