@@ -1,5 +1,4 @@
 import argparse
-from abc import ABC, abstractmethod
 
 parser = argparse.ArgumentParser(description="Conway's Game of Life, in Python")
 parser.add_argument('board_size', type=int, help="Side length of simulated board.", metavar='size')
@@ -29,12 +28,12 @@ class Board:
             s += f"{' '.join(list(map(lambda c: '1' if c else '0', row)))}\n"
         return s
 
-def saveAsPBMP1(board, filename):
+def save_as_PBMP1(board, filename):
     with open(filename, "w") as f:
         f.write(f"P1\n{board.size} {board.size}\n")
         f.write(str(board))
 
-def getNumNeighbors(board, row, col):
+def get_num_neighbors(board, row, col):
     if not (0 <= row < board.size and 0 <= col < board.size):
         raise IndexError(f"index {row} or {col} is out of bounds for array with size {board.size}.")
     count = 0
@@ -46,7 +45,7 @@ def getNumNeighbors(board, row, col):
     if board.is_set((row+1) % board.size, (col-1) % board.size): count += 1
     if board.is_set((row+1) % board.size, (col  ) % board.size): count += 1
     if board.is_set((row+1) % board.size, (col+1) % board.size): count += 1
-    return count    
+    return count
 
 def main():
     args = parser.parse_args()
@@ -62,13 +61,13 @@ def main():
 
     # Simulate next timestep and save image until simulation is done.
     while timestep < args.num_timesteps:
-        saveAsPBMP1(now, f"{timestep}.pbm")
+        save_as_PBMP1(now, f"{timestep}.pbm")
         timestep += 1
 
         _next = Board(args.board_size)
         for row in range(args.board_size):
             for col in range(args.board_size):
-                numNeighbors = getNumNeighbors(now, row, col)
+                numNeighbors = get_num_neighbors(now, row, col)
                 if now.is_set(row, col):
                     if 2 <= numNeighbors <= 3:
                         _next.set(row, col)
