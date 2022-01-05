@@ -15,10 +15,9 @@ uint64_t getNumNeighbors(Board& board, uint64_t row, uint64_t col)
     uint64_t col_upper{ col + 1 };
 
     if ((int64_t)(row - 1) == -1) row_lower = size - 1;
-    if (row + 1 == size) row_upper = 0;
+    if (row + 1 == size)          row_upper = 0;
     if ((int64_t)(col - 1) == -1) col_lower = size - 1;
-    if (col + 1 == size) col_upper = 0;
-
+    if (col + 1 == size)          col_upper = 0;
 
     if (board.isSet(row_lower % size, col_lower % size)) count += 1;
     if (board.isSet(row_lower % size, col       % size)) count += 1;
@@ -60,9 +59,12 @@ usage: main [-h] size N file
 Conway's Game of Life, in C++
 
 positional arguments:
-size          Side length of simulated board.
-N             Number of timesteps to simulate.
-file          path to text file of board's initial state.
+  size        Side length of simulated board.
+  N           Number of timesteps to simulate.
+  file        path to text file of board's initial state.
+
+optional arguments:
+  -h, --help  show this help message and exit
         )" << std::endl;
         return -1;
     } else {
