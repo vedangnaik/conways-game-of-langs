@@ -6,27 +6,43 @@
 
 uint64_t getNumNeighbors(Board& board, uint64_t row, uint64_t col)
 {
-    uint64_t count{0};
-    if (board.get((row-1) % board.size, (col-1) % board.size) == '1') count += 1;
-    if (board.get((row-1) % board.size, (col  ) % board.size) == '1') count += 1;
-    if (board.get((row-1) % board.size, (col+1) % board.size) == '1') count += 1;
-    if (board.get((row  ) % board.size, (col-1) % board.size) == '1') count += 1;
-    if (board.get((row  ) % board.size, (col+1) % board.size) == '1') count += 1;
-    if (board.get((row+1) % board.size, (col-1) % board.size) == '1') count += 1;
-    if (board.get((row+1) % board.size, (col  ) % board.size) == '1') count += 1;
-    if (board.get((row+1) % board.size, (col+1) % board.size) == '1') count += 1;
+    uint64_t count{ 0 };
+    const uint64_t& size{ board.getSize() };
+
+    uint64_t row_lower{ row - 1 };
+    uint64_t row_upper{ row + 1 };
+    uint64_t col_lower{ col - 1 };
+    uint64_t col_upper{ col + 1 };
+
+    if ((int64_t)(row - 1) == -1) row_lower = size - 1;
+    if (row + 1 == size) row_upper = 0;
+    if ((int64_t)(col - 1) == -1) col_lower = size - 1;
+    if (col + 1 == size) col_upper = 0;
+
+
+    if (board.isSet(row_lower % size, col_lower % size)) count += 1;
+    if (board.isSet(row_lower % size, col       % size)) count += 1;
+    if (board.isSet(row_lower % size, col_upper % size)) count += 1;
+    if (board.isSet(row       % size, col_lower % size)) count += 1;
+    if (board.isSet(row       % size, col_upper % size)) count += 1;
+    if (board.isSet(row_upper % size, col_lower % size)) count += 1;
+    if (board.isSet(row_upper % size, col       % size)) count += 1;
+    if (board.isSet(row_upper % size, col_upper % size)) count += 1;
     return count;
 }
 
-void saveBoardAsPBMP1(Board& board, std::string filename)
+void saveAsPBMP1(Board& board, std::string filename)
 {
+    const std::vector<std::vector<bool>>& b{ board.getBoard() };
+    const uint64_t& size{ board.getSize() };
+
     std::ofstream f{filename};
-    f << std::format("P1\n{} {}\n", board.size, board.size);
-    for (uint64_t row{0}; row < board.size; row++) {
-        for (uint64_t col{0}; col < board.size - 1; col++) {
-            f << board.get(row, col) << " ";
+    f << std::format("P1\n{} {}\n", size, size);
+    for (uint64_t row{0}; row < size; row++) {
+        for (uint64_t col{0}; col < size; col++) {
+            f << std::format("{} ", b.at(row).at(col) ? '1' : '0');
         }
-        f << board.get(row, board.size - 1) << "\n";
+        f << "\n";
     }
 }
 
@@ -34,32 +50,29 @@ int main(int argc, char* argv[])
 {
     uint64_t size;
     uint64_t numTimesteps;
-    std::string initial_state_filepath{"start.txt"};
+    std::string initial_state_filepath;
 
     // Parse args
-    switch(argc) {
-        case 4: initial_state_filepath = argv[3];
-        case 3:
-            size = std::stoi(argv[1]);
-            numTimesteps = std::stoi(argv[2]);
-            break;
-        default:
-            std::cout << R"(
-usage: main.py [-h] [--input file] size N       
+    if (argc != 4) {
+        std::cout << R"(
+usage: main [-h] size N file
 
 Conway's Game of Life, in C++
 
 positional arguments:
 size          Side length of simulated board.
 N             Number of timesteps to simulate.
-
-optional arguments:
---input file  path to text file of board's initial state. default: ./start.txt
-            )" << std::endl;
+file          path to text file of board's initial state.
+        )" << std::endl;
+        return -1;
+    } else {
+        size = (uint64_t)std::stoi(argv[1]);
+        numTimesteps = (uint64_t)std::stoi(argv[2]);
+        initial_state_filepath = std::string(argv[3]);
     }
 
     // Set up boards and time stuff
-    Board b(size);
+    Board board(size);
     uint64_t timestep{0};
 
     // Read in initial state
@@ -67,30 +80,29 @@ optional arguments:
     while (f) {
         std::string line;
         std::getline(f, line);
-        std::string::size_type n = line.find(" ");
+        std::string::size_type n{ line.find(" ") };
         if (n == std::string::npos) continue;
 
-        uint64_t row = std::stoi(line.substr(0, n));
-        uint64_t col = std::stoi(line.substr(n));
-        b.set(row, col);
+        uint64_t row = (uint64_t)std::stoi(line.substr(0, n));
+        uint64_t col = (uint64_t)std::stoi(line.substr(n));
+        board.set(row, col);
     }
 
     // Simulate next timestep and save image until simulation is done.
     while (timestep < numTimesteps) {
-        saveBoardAsPBMP1(b, std::format("{}.pbm", timestep++));
+        saveAsPBMP1(board, std::format("{}.pbm", timestep++));
 
-        Board next(b.size);
-        for (uint64_t row{0}; row < b.size; row++) {
-            for (uint64_t col{0}; col < b.size; col++) {
-                uint64_t numNeighbors = getNumNeighbors(b, row, col);
-                // std::cout << numNeighbors << std::endl;
-                if (b.get(row, col) == '1') {
+        Board next(size);
+        for (uint64_t row{0}; row < size; row++) {
+            for (uint64_t col{0}; col < size; col++) {
+                uint64_t numNeighbors{ getNumNeighbors(board, row, col) };
+                if (board.isSet(row, col)) {
                     if (2 <= numNeighbors && numNeighbors <= 3) next.set(row, col);
                 } else {
                     if (numNeighbors == 3) next.set(row, col);
                 }
             }
         }
-        b = next;
+        board = next;
     }
 }

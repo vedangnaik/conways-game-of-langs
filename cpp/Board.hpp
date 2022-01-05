@@ -3,10 +3,12 @@
 class Board {
 public:
     Board(uint64_t size);
-    uint8_t get(uint64_t row, uint64_t col);
+    bool isSet(uint64_t row, uint64_t col);
     void set(uint64_t row, uint64_t col);
+    const std::vector<std::vector<bool>>& getBoard();
+    const uint64_t& getSize();
 
-    uint64_t size;
 private:
-    std::vector<std::vector<uint8_t>> board;
+    uint64_t size;
+    std::vector<std::vector<bool>> board;
 };

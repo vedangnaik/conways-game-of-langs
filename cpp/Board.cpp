@@ -1,16 +1,25 @@
 #include "Board.hpp"
 
 Board::Board(uint64_t size)
-    : size{size}, board(size, std::vector<uint8_t>(size, '0'))
-{   
+    : size{size}, board(size, std::vector<bool>(size, false))
+{
 }
 
-uint8_t Board::get(uint64_t row, uint64_t col)
+bool Board::isSet(uint64_t row, uint64_t col)
 {
     return this->board.at(row).at(col);
 }
 
 void Board::set(uint64_t row, uint64_t col)
 {
-    this->board.at(row).at(col) = '1';
+    this->board.at(row).at(col) = true;
+}
+
+const std::vector<std::vector<bool>>& Board::getBoard()
+{
+    return this->board;
+}
+
+const uint64_t& Board::getSize() {
+    return this->size;
 }
