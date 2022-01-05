@@ -8,9 +8,9 @@ Each folder in this repository contains a standardized implementation of Conway'
     - one integer for the number of timesteps to simulate,
     - and one string filepath for the file containing the game's initial state,
 * and outputs
-    - one PBM P1 (i.e. greyscale, ASCII) image for each timestep, containing the state of the board at that timestep.
+    - one PBM P1 (i.e. greyscale, ASCII; see https://en.wikipedia.org/wiki/Netpbm#PBM_example) image for each timestep, representing the state of the board at that timestep.
 
-Each output image is converted to JPEG and scaled up 200x with `ImageMagick`, then stiched into a video with `ffmpeg`.
+Each output image is then converted to JPEG and scaled up 200x with `ImageMagick`, then stiched into a video with `ffmpeg`.
 
 *Note: The algoritm is naive; do not expect to be able to calculate quadrillions of timesteps.*
 
