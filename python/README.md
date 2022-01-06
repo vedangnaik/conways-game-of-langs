@@ -2,7 +2,7 @@
 * **Python 3.x** - Any version with support for f-strings, exceptions and `argparse`.
 
 ## Build
-There is no build process
+There is no build process.
 
 ## Run
 Simulate 500 turns of a game on a 25x25 board with initial state read from `test.txt`. Output images will be placed in the directory the command is run from.

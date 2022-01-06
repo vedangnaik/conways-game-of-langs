@@ -16,7 +16,7 @@ $ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main 25 500 test.txt
 ```
 Full help text for reference:
 ```
-$ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main -h
+$ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main --help
 usage: game_of_life.main.Main [-h] size N file
 
 Conway's Game of Life, in Java
