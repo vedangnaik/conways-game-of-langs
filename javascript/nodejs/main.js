@@ -69,8 +69,7 @@ function getNumNeighbors(board, row, col) {
 
     const args = process.argv.slice(2);
     if (args.length != 3) {
-        console.log(`
-usage: main.js [-h] size N file
+        console.log(`usage: main.js [-h] size N file
 
 Conway's Game of Life, in NodeJS
 
@@ -80,8 +79,7 @@ N           Number of timesteps to simulate.
 file        path to text file of board's initial state.
 
 optional arguments:
--h, --help  show this help message and exit
-        `);
+-h, --help  show this help message and exit`);
         process.exit(-1);
     } else {
         size = parseInt(args[0]);
