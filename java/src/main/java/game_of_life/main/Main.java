@@ -1,17 +1,45 @@
 package game_of_life.main;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 
 public class Main
 {
+    private static void saveBoardAsPBMP1(boolean[][] board, int size, String filename) {
+        try {
+            PrintWriter p = new PrintWriter(filename);
+            p.write(MessageFormat.format("P1\n{0} {1}\n", size, size));
+            for (var row : board) {
+                for (var i : row) {
+                    p.write(MessageFormat.format("{0} ", i ? "1" : "0"));
+                }
+                p.write("\n");
+            }
+            p.close();
+        } catch (IOException ignored) {}
+    }
+
+    private static int getNumNeighbors(boolean[][] board, int size, int row, int col) {
+        int count = 0;
+        if (board[Math.floorMod(row - 1, size)][Math.floorMod(col - 1, size)]) count += 1;
+        if (board[Math.floorMod(row - 1, size)][Math.floorMod(col    , size)]) count += 1;
+        if (board[Math.floorMod(row - 1, size)][Math.floorMod(col + 1, size)]) count += 1;
+        if (board[Math.floorMod(row    , size)][Math.floorMod(col - 1, size)]) count += 1;
+        if (board[Math.floorMod(row    , size)][Math.floorMod(col + 1, size)]) count += 1;
+        if (board[Math.floorMod(row + 1, size)][Math.floorMod(col - 1, size)]) count += 1;
+        if (board[Math.floorMod(row + 1, size)][Math.floorMod(col    , size)]) count += 1;
+        if (board[Math.floorMod(row + 1, size)][Math.floorMod(col + 1, size)]) count += 1;
+        return count;
+    }
+
     public static void main(String[] args)
     {
         // Parse args
         int size;
-        int numTimesteps;
+        int numTimeSteps;
         String initialStateFilepath;
 
         if (args.length != 3) {
@@ -32,7 +60,7 @@ public class Main
         } else {
             try {
                 size = Integer.parseInt(args[0]);
-                numTimesteps = Integer.parseInt(args[1]);
+                numTimeSteps = Integer.parseInt(args[1]);
                 initialStateFilepath = args[2];
             } catch (NumberFormatException e) {
                 System.out.println(e.getMessage());
@@ -42,9 +70,9 @@ public class Main
 
         // Set up board and simulation stuff
         boolean[][] board;
-        int timestep = 0;
+        int timeStep = 0;
 
-        // Read in intial state
+        // Read in initial state
         try {
             boolean[][] finalBoard = new boolean[size][size];
             for (var row : finalBoard) { for (var i : row) { i = false; }}
@@ -67,21 +95,21 @@ public class Main
             return;
         }
 
-        // Simulate requested number of timesteps
-        while (timestep < numTimesteps) {
-            // TODO Save file
-            timestep += 1;
+        // Simulate requested number of time steps
+        while (timeStep < numTimeSteps) {
+            saveBoardAsPBMP1(board, size, MessageFormat.format("{0}.pbm", timeStep));
+            timeStep += 1;
 
             // Update board
             boolean[][] next = new boolean[size][size];
             for (var row : next) { for (var i : row) { i = false; }}
             for (int row = 0; row < size; row++) {
                 for (int col = 0; col < size; col++) {
-                    // TODO Calculate num neighbors
+                    int numNeighbors = getNumNeighbors(board, size, row, col);
                     if (board[row][col]) {
-                        // TODO
+                        if (2 <= numNeighbors && numNeighbors <= 3) next[row][col] = true;
                     } else {
-                        // TODO
+                        if (numNeighbors == 3) next[row][col] = true;
                     }
                 }
             }
