@@ -24,6 +24,11 @@
   (void)
 )
 
+(define (getNumNeighbors board row col)
+  (define count 0)
+  count
+)
+
 (define (main)
   ; TODO: Read in size and number of simulation turns
   (define size 40)
