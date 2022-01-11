@@ -7,6 +7,7 @@
     (lambda (out)
       (define size (Board-size board))
       (define b (Board-b board))
+      
       (fprintf out "P1\n~a ~a\n" size size)
       (for ([x (in-range size)])
         (for ([y (in-range size)])
@@ -25,7 +26,28 @@
 )
 
 (define (getNumNeighbors board row col)
+  (define size (Board-size board))
+  (define b (Board-b board))
+  
   (define count 0)
+  (define row_lower (modulo (- row 1) size))
+  (define row_upper (modulo (+ row 1) size))
+  (define col_lower (modulo (- col 1) size))
+  (define col_upper (modulo (+ col 1) size))
+
+  (define (boardIsSet x y)
+    (vector-ref (vector-ref b x) y)
+  )
+
+  (set! count (+ count (if (boardIsSet row_lower col_lower) 1 0 )))
+  (set! count (+ count (if (boardIsSet row_lower col      ) 1 0 )))
+  (set! count (+ count (if (boardIsSet row_lower col_upper) 1 0 )))
+  (set! count (+ count (if (boardIsSet row       col_lower) 1 0 )))
+  (set! count (+ count (if (boardIsSet row       col_upper) 1 0 )))
+  (set! count (+ count (if (boardIsSet row_upper col_lower) 1 0 )))
+  (set! count (+ count (if (boardIsSet row_upper col      ) 1 0 )))
+  (set! count (+ count (if (boardIsSet row_upper col_upper) 1 0 )))
+
   count
 )
 
@@ -66,7 +88,7 @@
     coords_str
   ))
   ; Check for odd number of coordinates
-  (if (not (equal? (remainder (length coords) 2) 0))
+  (if (not (equal? (modulo (length coords) 2) 0))
     (raise (printf "There are an odd number of coordinates in ~a." inital-state-file))
     (void)
   )
@@ -77,8 +99,6 @@
     (define y (list-ref coords (+ i 1)))
     (vector-set! (vector-ref (Board-b board) x) y #t)
   )
-
-  (saveBoardAsPBMP1 board "test.pbm")
 
   0
 )
