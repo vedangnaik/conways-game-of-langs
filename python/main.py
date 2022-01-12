@@ -1,9 +1,5 @@
 import argparse
-
-parser = argparse.ArgumentParser(description="Conway's Game of Life, in Python")
-parser.add_argument('board_size', type=int, help="Side length of simulated board.", metavar='size')
-parser.add_argument('num_timesteps', type=int, help="Number of timesteps to simulate.", metavar='N')
-parser.add_argument('input', type=argparse.FileType('r'), help="path to text file of board's initial state.", metavar='file')
+import re
 
 class Board:
     def __init__(self, size):
@@ -22,20 +18,15 @@ class Board:
             raise IndexError(f"index {row} or {col} is out of bounds for array with size {self.size}.")
         self._board[row][col] = True
 
-    def __str__(self):
-        s = ""
-        for row in self._board:
-            s += f"{' '.join(list(map(lambda c: '1' if c else '0', row)))}\n"
-        return s
-
 def save_as_PBMP1(board, filename):
     with open(filename, "w") as f:
         f.write(f"P1\n{board.size} {board.size}\n")
-        f.write(str(board))
+        for row in range(board.size):
+            for col in range(board.size):
+                f.write(f"{'1' if board.is_set(row, col) else '0'} ")
+            f.write("\n")
 
 def get_num_neighbors(board, row, col):
-    if not (0 <= row < board.size and 0 <= col < board.size):
-        raise IndexError(f"index {row} or {col} is out of bounds for array with size {board.size}.")
     count = 0
     if board.is_set((row-1) % board.size, (col-1) % board.size): count += 1
     if board.is_set((row-1) % board.size, (col  ) % board.size): count += 1
@@ -48,6 +39,10 @@ def get_num_neighbors(board, row, col):
     return count
 
 def main():
+    parser = argparse.ArgumentParser(description="Conway's Game of Life, in Python")
+    parser.add_argument('board_size', type=int, help="Side length of simulated board.", metavar='size')
+    parser.add_argument('num_timesteps', type=int, help="Number of timesteps to simulate.", metavar='N')
+    parser.add_argument('input', type=argparse.FileType('r'), help="path to text file of board's initial state.", metavar='file')
     args = parser.parse_args()
 
     # Set up boards and time stuff
@@ -55,8 +50,11 @@ def main():
     timestep = 0
 
     # Read in initial state
-    for line in args.input.readlines():
-        now.set(*map(int, line.strip().split()))
+    fileStr = args.input.read()
+    if re.compile("^(\d+\s\d+(\r\n|\r|\n))+$").match(fileStr) is None:
+        raise AssertionError(f"Initial state file {args.input.name} must satisfy regular expression ^(\d+\s\d+(\\r\\n|\\r|\\n))+$.")
+    for coord in fileStr.strip().splitlines():
+        now.set(*map(int, coord.strip().split()))
     args.input.close()
 
     # Simulate next timestep and save image until simulation is done.
