@@ -25,9 +25,16 @@
   (void)
 )
 
+(define (boardIsSet board x y)
+  (vector-ref (vector-ref (Board-b board) x) y)
+)
+
+(define (setBoard board x y)
+  (vector-set! (vector-ref (Board-b board) x) y #t)
+)
+
 (define (getNumNeighbors board row col)
   (define size (Board-size board))
-  (define b (Board-b board))
   
   (define count 0)
   (define row_lower (modulo (- row 1) size))
@@ -35,44 +42,43 @@
   (define col_lower (modulo (- col 1) size))
   (define col_upper (modulo (+ col 1) size))
 
-  (define (boardIsSet x y)
-    (vector-ref (vector-ref b x) y)
-  )
-
-  (set! count (+ count (if (boardIsSet row_lower col_lower) 1 0 )))
-  (set! count (+ count (if (boardIsSet row_lower col      ) 1 0 )))
-  (set! count (+ count (if (boardIsSet row_lower col_upper) 1 0 )))
-  (set! count (+ count (if (boardIsSet row       col_lower) 1 0 )))
-  (set! count (+ count (if (boardIsSet row       col_upper) 1 0 )))
-  (set! count (+ count (if (boardIsSet row_upper col_lower) 1 0 )))
-  (set! count (+ count (if (boardIsSet row_upper col      ) 1 0 )))
-  (set! count (+ count (if (boardIsSet row_upper col_upper) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row_lower col_lower) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row_lower col      ) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row_lower col_upper) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row       col_lower) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row       col_upper) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row_upper col_lower) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row_upper col      ) 1 0 )))
+  (set! count (+ count (if (boardIsSet board row_upper col_upper) 1 0 )))
 
   count
+)
+
+(define (initBoard size)
+  (Board
+    (build-vector
+      size
+      (lambda (i)
+        (build-vector
+          size
+          (lambda (i)
+            #f
+          )
+        )
+      )
+    )
+    size
+  )
 )
 
 (define (main)
   ; TODO: Read in size and number of simulation turns
   (define size 40)
+  (define num-timesteps 100)
   (define inital-state-file "gosper_glider_gun.txt")
 
   ; Set up board
-  (define board
-    (Board
-      (build-vector
-        size
-        (lambda (i)
-          (build-vector
-            size
-            (lambda (i)
-              #f
-            )
-          )
-        )
-      )
-      size
-    )
-  )
+  (define board (initBoard size))
 
   ; Parse input file
   (define coords_str (string-split (port->string (open-input-file inital-state-file))))
@@ -97,9 +103,25 @@
   (for ([i (in-range 0 (length coords) 2)])
     (define x (list-ref coords i))
     (define y (list-ref coords (+ i 1)))
-    (vector-set! (vector-ref (Board-b board) x) y #t)
+    (setBoard board x y)
   )
 
+  ; Main simulation loop
+  (for ([timestep (in-range num-timesteps)])
+    (saveBoardAsPBMP1 board (format "~a.pbm" timestep))
+
+    (define nextBoard (initBoard size))
+    (for ([row (in-range size)])
+      (for ([col (in-range size)])
+        (define num-neighbors (getNumNeighbors board row col))
+        (if (boardIsSet board row col)
+          (if (<= 2 num-neighbors 3)   (setBoard nextBoard row col) void)
+          (if (equal? num-neighbors 3) (setBoard nextBoard row col) void)
+        )
+      )
+    )
+    (set! board nextBoard)
+  )
   0
 )
 
