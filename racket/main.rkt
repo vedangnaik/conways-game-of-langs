@@ -111,22 +111,21 @@
   (define size (send board get-size))
 
   ; Parse input file
-  (define coords_str (string-split (port->string (open-input-file user-inital-state-file))))
-  (define coords (map
-    (lambda (c)
-      (define i (string->number c))
-      (cond
-        [(not i) (raise (format "\"~a\" is not a valid integer." c))]
-        [(not (< -1 i size)) (raise (format "~a is out of bounds for board of size ~a." i size))]
-        [else i]
+  (define file-str (port->string (open-input-file user-inital-state-file)))
+  (define coords 
+    (if (regexp-match-positions #rx"^([0-9]+ [0-9]+(?:\r\n|\r|\n))+$" file-str)
+      (map
+        (lambda (c)
+          (define i (string->number c))
+          (cond
+            [(not (< -1 i size)) (raise (format "~a is out of bounds for board of size ~a." i size))]
+            [else i]
+          )
+        )
+        (string-split file-str)
       )
+      (raise (format "The contents of ~a are malformed." user-inital-state-file))
     )
-    coords_str
-  ))
-  ; Check for odd number of coordinates
-  (if (not (equal? (modulo (length coords) 2) 0))
-    (raise (printf "There are an odd number of coordinates in ~a." user-inital-state-file))
-    (void)
   )
 
   ; Apply to board
