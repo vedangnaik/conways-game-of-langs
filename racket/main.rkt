@@ -1,4 +1,5 @@
 #lang racket
+(require racket/cmdline)
 
 (define Board% (class object%
   (init size)
@@ -76,10 +77,34 @@
 )
 
 (define (main)
-  ; TODO: Read in size and number of simulation turns
-  (define user-size 40)
-  (define user-num-timesteps 100)
-  (define user-inital-state-file "gosper_glider_gun.txt")
+  ; Parse command line args
+  (define argv (command-line 
+    #:program "main"
+    #:args (board-size simulation-timesteps inital-state-file)
+    (list board-size simulation-timesteps inital-state-file)
+  ))
+  (define bs  (list-ref argv 0))
+  (define st  (list-ref argv 1))
+  (define isf (list-ref argv 2))
+
+  (define user-size
+    (if (string->number bs)
+      (string->number bs)
+      (raise (format "'~a' is not a valid integer." bs))
+    )
+  )
+  (define user-num-timesteps
+    (if (string->number st)
+      (string->number st)
+      (raise (format "'~a' is not a valid integer." st))
+    )
+  )
+  (define user-inital-state-file
+    (if (file-exists? isf)
+      isf
+      (raise (format "'~a' is not a valid file." isf))
+    )
+  )
 
   ; Set up board
   (define board (new Board% [size user-size]))
@@ -91,8 +116,8 @@
     (lambda (c)
       (define i (string->number c))
       (cond
-        [(not i) (raise (printf "\"~a\" is not a valid integer." c))]
-        [(not (< -1 i size)) (raise (printf "~a is out of bounds for board of size ~a." i size))]
+        [(not i) (raise (format "\"~a\" is not a valid integer." c))]
+        [(not (< -1 i size)) (raise (format "~a is out of bounds for board of size ~a." i size))]
         [else i]
       )
     )
