@@ -3,10 +3,19 @@ Conway's Game of Life in as many languages as I know.
 
 ## Structure
 Each folder in this repository contains a standardized implementation of Conway's Game of Life in the corresponding langauge. This implementation
-* Takes as input on the command line
+* takes as input on the command line
     - one positive integer for the square's board size,
     - one integer for the number of timesteps to simulate,
-    - and one string filepath for the file containing the game's initial state,
+    - and one string filepath for the file containing the game's initial state (the contents of which must match the regex `^(\d+\s\d+(\r\n|\r|\n))+$`, where 
+        * `\d` is any digit from 0 through 9, 
+        * `\s` is a single space, 
+        * `\r` is the carraige return character, 
+        * `\n` is the newline character, 
+        * `+` means "one or more of",
+        * `|` means "either one of",
+        * `^` indicates the start of the string,
+        * `$` indicates the end of the string, and
+        * `()` indicate a capture group)
 * and outputs
     - one PBM P1 (i.e. greyscale, ASCII; see https://en.wikipedia.org/wiki/Netpbm#PBM_example) image for each timestep, representing the state of the board at that timestep.
 
@@ -25,7 +34,7 @@ Follow the instructions in the `README.md` of the language you wish to use.
 
 ### Run
 1. Follow the instructions in the `README.md` of the language you wish to use.
-2. Depending on your operating system, use
-    - Windows: `make_video.ps1`
+2. Depending on your operating system, run the following command from within the directory the images were generated:
+    - Windows: `make_video.ps1 .`
 
-to generate the final video.
+The final video `out.mp4` will be generated in this directory. Enjoy!
