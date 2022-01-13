@@ -45,16 +45,16 @@ public class Main
 
     public static void main(String[] args)
     {
-        ArgumentParser parser = ArgumentParsers.newFor("Checksum").build()
+        ArgumentParser parser = ArgumentParsers.newFor("game_of_life.main.Main").build()
                 .defaultHelp(true)
-                .description("Calculate checksum of given files.");
+                .description("Conway's Game of Life, in Java");
         parser.addArgument("boardSize")
                 .type(Integer.class)
-                .help("Side length of simulated board.")
+                .help("side length of simulated board.")
                 .metavar("size");
         parser.addArgument("numIterations")
                 .type(Integer.class)
-                .help("Number of iterations to simulate.")
+                .help("number of iterations to simulate.")
                 .metavar("N");
         parser.addArgument("initialStateFile")
                 .type(File.class)

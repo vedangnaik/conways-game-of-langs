@@ -1,6 +1,6 @@
 ## Requirements
-* **Java** - Any version with support for multiline strings, `MessageFormat`, etc. will do. This program has been tested with Java 17 only.
-* **Maven** - At least version `3.8.1` or above.
+* **Java** - Any sufficiently recent version with support for multiline strings, `MessageFormat`, etc. will do. This program has been tested with Java 17.
+* **Maven** - Any sufficiently recent version with support for `Argparse4j`. This program has been tested with Maven v3.8.1.
 
 ## Build
 ```
@@ -16,16 +16,16 @@ $ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main 25 500 test.txt
 ```
 Full help text for reference:
 ```
-$ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main --help
+$ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main -h
 usage: game_of_life.main.Main [-h] size N file
 
 Conway's Game of Life, in Java
 
 positional arguments:
-  size        Side length of simulated board.
-  N           Number of timesteps to simulate.
-  file        path to text file of board's initial state.
+  size                   side length of simulated board.
+  N                      number of iterations to simulate.
+  file                   path to text file of board's initial state.
 
-optional arguments:
-  -h, --help  show this help message and exit.
+named arguments:
+  -h, --help             show this help message and exit
 ```
