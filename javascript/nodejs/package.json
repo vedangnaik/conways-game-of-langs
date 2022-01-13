@@ -1,0 +1,14 @@
+{
+  "name": "conways_game_of_life_nodejs",
+  "version": "1.0.0",
+  "description": "Conway's Game of Life, in NodeJS",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vedang Naik",
+  "license": "MIT",
+  "dependencies": {
+    "argparse": "2.0.1"
+  }
+}

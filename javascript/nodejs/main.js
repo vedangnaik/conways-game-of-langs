@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { ArgumentParser, FileType } = require('argparse')
 
 class Board {
     #board;
@@ -46,9 +47,6 @@ function saveBoardAsPBMP1(board, filename) {
 }
 
 function getNumNeighbors(board, row, col) {
-    if (!(0 <= row < board.size && 0 <= col < board.size)) {
-        throw new RangeError(`${row} or ${col} are out of range for board with size ${this.size}`);
-    }
     let count = 0;
     if (board.isSet(mod(row - 1, board.size), mod(col - 1, board.size))) { count += 1 }
     if (board.isSet(mod(row - 1, board.size), mod(col    , board.size))) { count += 1 }
@@ -62,60 +60,27 @@ function getNumNeighbors(board, row, col) {
 }
 
 (function main() {
-    // Parse args
-    let size;
-    let numTimeSteps;
-    let initialStateFilePath;
-
-    const args = process.argv.slice(2);
-    if (args.length != 3) {
-        console.log(`usage: main.js [-h] size N file
-
-Conway's Game of Life, in NodeJS
-
-positional arguments:
-size        Side length of simulated board.
-N           Number of timesteps to simulate.
-file        path to text file of board's initial state.
-
-optional arguments:
--h, --help  show this help message and exit`);
-        process.exit(-1);
-    } else {
-        size = parseInt(args[0]);
-        if (isNaN(size) || size <= 0) {
-            console.log(`'size' must be a valid positive integer.`);
-            process.exit(-1);
-        }
-
-        numTimeSteps = parseInt(args[1]);
-        if (isNaN(numTimeSteps) || numTimeSteps <= 0) {
-            console.log(`'N' must be a valid positive integer.`);
-            process.exit(-1);
-        }
-
-        initialStateFilePath = args[2];
-        if (!fs.statSync(initialStateFilePath).isFile()) {
-            console.log(`${initialStateFilePath} must be a valid file.`);
-            process.exit(-1);
-        }
-    }
+    const parser = new ArgumentParser({
+        description: "Conway's Game of Life, in NodeJS",
+        add_help: true
+    });
+    parser.add_argument('boardSize', { type: "int", help: "Side length of simulated board." })
+    parser.add_argument('numTimesteps', { type: "int", help: "Number of timesteps to simulate." })
+    parser.add_argument('initialStateFile', { type: FileType('r'), help: "Path to text file of board's initial state." })
+    const args = parser.parse_args();
 
     // Set up board
-    let board = new Board(size);
+    let board = new Board(args.boardSize);
 
     // Read in initial state
-    const fileString = fs.readFileSync(initialStateFilePath, { encoding: "ascii" });
-    fileString.split(/\r?\n/).forEach(line => {
-        const [row, col] = line.split(' ').map(coord => parseInt(coord));
-        if (isNaN(row) || isNaN(col)) {
-            console.log(`${initialStateFilePath} contains at least one malformed coordinate.`);
-            process.exit(-1);
-        }
-        board.set(row, col);
-    })
+    const fileString = fs.readFileSync(args.initialStateFile.fd, { encoding: "ascii" });
+    const fileValidationRe = /^(\d+\s\d+(\r\n|\r|\n))+$/;
+    if (!fileValidationRe.test(fileString)) {
+        throw new TypeError("Initial state file must satisfy regular expression ^(\\d+\\s\\d+(\\r\\n|\\r|\\n))+$.");
+    }
+    fileString.split(/\r?\n/).forEach(line => board.set(...line.split(' ').map(coord => parseInt(coord))));
 
-    for (let timestep = 0; timestep < numTimeSteps; timestep++) {
+    for (let timestep = 0; timestep < args.numTimesteps; timestep++) {
         // Save file
         saveBoardAsPBMP1(board, `${timestep}.pbm`);
 
