@@ -1,20 +1,28 @@
 package game_of_life.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.regex.Pattern;
+
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 public class Main
 {
-    private static void saveBoardAsPBMP1(boolean[][] board, int size, String filename) {
+    private static void saveBoardAsPBMP1(Board board, String filename) {
         try {
             PrintWriter p = new PrintWriter(filename);
-            p.write(MessageFormat.format("P1\n{0} {1}\n", size, size));
-            for (var row : board) {
-                for (var i : row) {
-                    p.write(MessageFormat.format("{0} ", i ? "1" : "0"));
+            p.write(MessageFormat.format("P1\n{0} {1}\n", board.size, board.size));
+            for (int row = 0; row < board.size; row++) {
+                for (int col = 0; col < board.size; col++) {
+                    p.write(MessageFormat.format("{0} ", board.isSet(row, col) ? "1" : "0"));
                 }
                 p.write("\n");
             }
@@ -22,98 +30,84 @@ public class Main
         } catch (IOException ignored) {}
     }
 
-    private static int getNumNeighbors(boolean[][] board, int size, int row, int col) {
+    private static int getNumNeighbors(Board board, int row, int col) {
         int count = 0;
-        if (board[Math.floorMod(row - 1, size)][Math.floorMod(col - 1, size)]) count += 1;
-        if (board[Math.floorMod(row - 1, size)][Math.floorMod(col    , size)]) count += 1;
-        if (board[Math.floorMod(row - 1, size)][Math.floorMod(col + 1, size)]) count += 1;
-        if (board[Math.floorMod(row    , size)][Math.floorMod(col - 1, size)]) count += 1;
-        if (board[Math.floorMod(row    , size)][Math.floorMod(col + 1, size)]) count += 1;
-        if (board[Math.floorMod(row + 1, size)][Math.floorMod(col - 1, size)]) count += 1;
-        if (board[Math.floorMod(row + 1, size)][Math.floorMod(col    , size)]) count += 1;
-        if (board[Math.floorMod(row + 1, size)][Math.floorMod(col + 1, size)]) count += 1;
+        if (board.isSet(Math.floorMod(row - 1, board.size), Math.floorMod(col - 1, board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row - 1, board.size), Math.floorMod(col    , board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row - 1, board.size), Math.floorMod(col + 1, board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row    , board.size), Math.floorMod(col - 1, board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row    , board.size), Math.floorMod(col + 1, board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row + 1, board.size), Math.floorMod(col - 1, board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row + 1, board.size), Math.floorMod(col    , board.size))) count += 1;
+        if (board.isSet(Math.floorMod(row + 1, board.size), Math.floorMod(col + 1, board.size))) count += 1;
         return count;
     }
 
     public static void main(String[] args)
     {
-        // Parse args
-        int size;
-        int numTimeSteps;
-        String initialStateFilepath;
-
-        if (args.length != 3) {
-            System.out.println("""
-            usage: game_of_life.main.Main [-h] size N file
-                    
-            Conway's Game of Life, in Java
-            
-            positional arguments:
-              size        Side length of simulated board.
-              N           Number of timesteps to simulate.
-              file        path to text file of board's initial state.
-            
-            optional arguments:
-              -h, --help  show this help message and exit.
-            """);
-            return;
-        } else {
-            try {
-                size = Integer.parseInt(args[0]);
-                numTimeSteps = Integer.parseInt(args[1]);
-                initialStateFilepath = args[2];
-            } catch (NumberFormatException e) {
-                System.out.println(e.getMessage());
-                return;
-            }
-        }
-
-        // Set up board and simulation stuff
-        boolean[][] board;
-        int timeStep = 0;
-
-        // Read in initial state
+        ArgumentParser parser = ArgumentParsers.newFor("Checksum").build()
+                .defaultHelp(true)
+                .description("Calculate checksum of given files.");
+        parser.addArgument("boardSize")
+                .type(Integer.class)
+                .help("Side length of simulated board.")
+                .metavar("size");
+        parser.addArgument("numIterations")
+                .type(Integer.class)
+                .help("Number of iterations to simulate.")
+                .metavar("N");
+        parser.addArgument("initialStateFile")
+                .type(File.class)
+                .help("path to text file of board's initial state.")
+                .metavar("file");
+        Namespace ns = null;
         try {
-            boolean[][] finalBoard = new boolean[size][size];
-            for (var row : finalBoard) { for (var i : row) { i = false; }}
-            Files.lines(Path.of(initialStateFilepath)).forEach(line -> {
-                String[] parts = line.split(" ");
+            ns = parser.parseArgs(args);
+        } catch (ArgumentParserException e) {
+            parser.handleError(e);
+            System.exit(1);
+        }
+        int userBoardSize = ns.getInt("boardSize");
+        int userNumIterations = ns.getInt("numIterations");
+        String userInitialStateFilepath = ns.getString("initialStateFile");
+
+        // Update board with initial state
+        Board current = null;
+        try {
+            current = new Board(userBoardSize);
+
+            String fileStr = Files.readString(Path.of(userInitialStateFilepath), StandardCharsets.UTF_8);
+            if (!Pattern.compile("^(\\d+\\s\\d+(\\r\\n|\\r|\\n))+$").matcher(fileStr).matches()) {
+                throw new Exception(MessageFormat.format("Initial state file {0} must satisfy regular expression ^(\\d+\\s\\d+(\\r\\n|\\r|\\n))+$.", userInitialStateFilepath));
+            }
+
+            for (String s : fileStr.split("(\\r\\n|\\r|\\n)")) {
+                String[] parts = s.split(" ");
                 int row = Integer.parseInt(parts[0]);
                 int col = Integer.parseInt(parts[1]);
-                if (row < 0 || row >= size || col < 0 || col >= size) throw new ArrayIndexOutOfBoundsException(MessageFormat.format("{0} or {1} are out of bounds for board of size {2}", row, col, size));
-                finalBoard[row][col] = true;
-            });
-            board = finalBoard;
-        } catch (IOException e) {
-            System.out.println(MessageFormat.format("{0} is not a valid file.", initialStateFilepath));
-            return;
-        } catch (NumberFormatException e) {
-            System.out.println(MessageFormat.format("{0} has an malformed coordinate.", initialStateFilepath));
-            return;
-        } catch (ArrayIndexOutOfBoundsException e) {
+                current.set(row, col);
+            }
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return;
+            System.exit(1);
         }
 
-        // Simulate requested number of time steps
-        while (timeStep < numTimeSteps) {
-            saveBoardAsPBMP1(board, size, MessageFormat.format("{0}.pbm", timeStep));
-            timeStep += 1;
+        // Simulate requested number of iterations
+        for (int iteration = 0; iteration < userNumIterations; iteration++) {
+            saveBoardAsPBMP1(current, MessageFormat.format("{0}.pbm", iteration));
 
-            // Update board
-            boolean[][] next = new boolean[size][size];
-            for (var row : next) { for (var i : row) { i = false; }}
-            for (int row = 0; row < size; row++) {
-                for (int col = 0; col < size; col++) {
-                    int numNeighbors = getNumNeighbors(board, size, row, col);
-                    if (board[row][col]) {
-                        if (2 <= numNeighbors && numNeighbors <= 3) next[row][col] = true;
+            Board next = new Board(current.size);
+            for (int row = 0; row < current.size; row++) {
+                for (int col = 0; col < current.size; col++) {
+                    int numNeighbors = getNumNeighbors(current, row, col);
+                    if (current.isSet(row, col)) {
+                        if (2 <= numNeighbors && numNeighbors <= 3) next.set(row, col);
                     } else {
-                        if (numNeighbors == 3) next[row][col] = true;
+                        if (numNeighbors == 3) next.set(row, col);
                     }
                 }
             }
-            board = next;
+            current = next;
         }
     }
 }
