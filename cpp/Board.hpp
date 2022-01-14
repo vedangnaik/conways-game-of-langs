@@ -1,14 +1,15 @@
 #include <vector>
+#include <stdexcept>
+#include <format>
 
 class Board {
 public:
-    Board(uint64_t size);
-    bool isSet(uint64_t row, uint64_t col);
+    explicit Board(uint64_t size);
+    [[nodiscard]] bool isSet(uint64_t row, uint64_t col) const;
     void set(uint64_t row, uint64_t col);
-    const std::vector<std::vector<bool>>& getBoard();
-    const uint64_t& getSize();
+    [[nodiscard]] const uint64_t& getSize() const;
 
 private:
-    uint64_t size;
+    const uint64_t size;
     std::vector<std::vector<bool>> board;
 };

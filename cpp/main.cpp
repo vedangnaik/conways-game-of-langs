@@ -2,17 +2,22 @@
 #include <fstream>
 #include <string>
 #include <format>
+#include <iterator>
+#include <regex>
+#include <sstream>
+#include <memory>
 #include "Board.hpp"
+#include <argparse/argparse.hpp>
 
-uint64_t getNumNeighbors(Board& board, uint64_t row, uint64_t col)
+uint64_t getNumNeighbors(const Board& board, const uint64_t row, const uint64_t col)
 {
-    uint64_t count{ 0 };
-    const uint64_t& size{ board.getSize() };
+    uint64_t count{0};
+    const uint64_t& size{board.getSize()};
 
-    uint64_t row_lower{ row - 1 };
-    uint64_t row_upper{ row + 1 };
-    uint64_t col_lower{ col - 1 };
-    uint64_t col_upper{ col + 1 };
+    uint64_t row_lower{row - 1};
+    uint64_t row_upper{row + 1};
+    uint64_t col_lower{col - 1};
+    uint64_t col_upper{col + 1};
 
     if ((int64_t)(row - 1) == -1) row_lower = size - 1;
     if (row + 1 == size)          row_upper = 0;
@@ -30,16 +35,14 @@ uint64_t getNumNeighbors(Board& board, uint64_t row, uint64_t col)
     return count;
 }
 
-void saveAsPBMP1(Board& board, std::string filename)
+void saveAsPBMP1(const Board& board, const std::string& filename)
 {
-    const std::vector<std::vector<bool>>& b{ board.getBoard() };
-    const uint64_t& size{ board.getSize() };
-
+    const uint64_t& size{board.getSize()};
     std::ofstream f{filename};
     f << std::format("P1\n{} {}\n", size, size);
     for (uint64_t row{0}; row < size; row++) {
         for (uint64_t col{0}; col < size; col++) {
-            f << std::format("{} ", b.at(row).at(col) ? '1' : '0');
+            f << std::format("{} ", board.isSet(row, col) ? '1' : '0');
         }
         f << "\n";
     }
@@ -47,64 +50,65 @@ void saveAsPBMP1(Board& board, std::string filename)
 
 int main(int argc, char* argv[])
 {
-    uint64_t size;
-    uint64_t numTimesteps;
-    std::string initial_state_filepath;
+    argparse::ArgumentParser parser("main");
+    parser.add_argument("board_size")
+        .help("side length of simulated current")
+        .scan<'i', uint64_t>();
+    parser.add_argument("num_iterations")
+        .help("number of iterations to simulate")
+        .scan<'i', uint64_t>();
+    parser.add_argument("initial_state_file")
+        .help("path to text file of current's initial state");
 
-    // Parse args
-    if (argc != 4) {
-        std::cout << R"(
-usage: main [-h] size N file
-
-Conway's Game of Life, in C++
-
-positional arguments:
-  size        Side length of simulated board.
-  N           Number of timesteps to simulate.
-  file        path to text file of board's initial state.
-
-optional arguments:
-  -h, --help  show this help message and exit
-        )" << std::endl;
-        return -1;
-    } else {
-        size = (uint64_t)std::stoi(argv[1]);
-        numTimesteps = (uint64_t)std::stoi(argv[2]);
-        initial_state_filepath = std::string(argv[3]);
+    try {
+        parser.parse_args(argc, argv);
+    }
+    catch (const std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
+        std::exit(1);
     }
 
-    // Set up boards and time stuff
-    Board board(size);
-    uint64_t timestep{0};
+    auto user_board_size = parser.get<uint64_t>("board_size");
+    auto user_num_iterations = parser.get<uint64_t>("num_iterations");
+    auto user_initial_state_filepath = parser.get<std::string>("initial_state_file");
 
+    auto current{std::make_unique<Board>(user_board_size)};
     // Read in initial state
-    std::ifstream f{initial_state_filepath};
-    while (f) {
-        std::string line;
-        std::getline(f, line);
-        std::string::size_type n{ line.find(" ") };
-        if (n == std::string::npos) continue;
-
+    std::ifstream f{user_initial_state_filepath};
+    if (f.fail()) {
+        throw std::runtime_error(std::format("Initial state file {} does not exist or could not be opened.", user_initial_state_filepath));
+    }
+    // Validate file shape
+    std::string fileStr(std::istreambuf_iterator<char>{f}, {});
+    std::regex fileValidatorRe("^(\\d+\\s\\d+(\r\n|\r|\n))+$");
+    std::smatch m;
+    if (!std::regex_match(fileStr, m, fileValidatorRe)) {
+        throw std::runtime_error(std::format("Initial state file {} must satisfy regular expression ^(\\d+\\s\\d+(\\r\\n|\\r|\\n))+$.", user_initial_state_filepath));
+    }
+    // Extract coordinates
+    std::stringstream ss(fileStr);
+    for (std::string line; std::getline(ss, line); ) {
+        std::string::size_type n{ line.find(' ') };
         uint64_t row = (uint64_t)std::stoi(line.substr(0, n));
         uint64_t col = (uint64_t)std::stoi(line.substr(n));
-        board.set(row, col);
+        current->set(row, col);
     }
 
-    // Simulate next timestep and save image until simulation is done.
-    while (timestep < numTimesteps) {
-        saveAsPBMP1(board, std::format("{}.pbm", timestep++));
+    // Simulate next iteration and save image until simulation is done.
+    for (uint64_t iteration = 0; iteration < user_num_iterations; iteration++) {
+        saveAsPBMP1(*current, std::format("{}.pbm", iteration));
 
-        Board next(size);
-        for (uint64_t row{0}; row < size; row++) {
-            for (uint64_t col{0}; col < size; col++) {
-                uint64_t numNeighbors{ getNumNeighbors(board, row, col) };
-                if (board.isSet(row, col)) {
-                    if (2 <= numNeighbors && numNeighbors <= 3) next.set(row, col);
+        auto next{std::make_unique<Board>(current->getSize())};
+        for (uint64_t row{0}; row < current->getSize(); row++) {
+            for (uint64_t col{0}; col < current->getSize(); col++) {
+                uint64_t numNeighbors{getNumNeighbors(*current, row, col)};
+                if (current->isSet(row, col)) {
+                    if (2 <= numNeighbors && numNeighbors <= 3) next->set(row, col);
                 } else {
-                    if (numNeighbors == 3) next.set(row, col);
+                    if (numNeighbors == 3) next->set(row, col);
                 }
             }
         }
-        board = next;
+        current.swap(next);
     }
 }
