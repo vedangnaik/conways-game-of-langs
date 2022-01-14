@@ -40,9 +40,9 @@ def get_num_neighbors(board, row, col):
 
 def main():
     parser = argparse.ArgumentParser(description="Conway's Game of Life, in Python")
-    parser.add_argument('board_size', type=int, help="Side length of simulated board.", metavar='size')
-    parser.add_argument('num_timesteps', type=int, help="Number of timesteps to simulate.", metavar='N')
-    parser.add_argument('input', type=argparse.FileType('r'), help="path to text file of board's initial state.", metavar='file')
+    parser.add_argument('board_size', type=int, help="side length of simulated board", metavar='size')
+    parser.add_argument('num_timesteps', type=int, help="number of timesteps to simulate", metavar='N')
+    parser.add_argument('input', type=argparse.FileType('r'), help="path to text file of board's initial state", metavar='file')
     args = parser.parse_args()
 
     # Set up boards and time stuff

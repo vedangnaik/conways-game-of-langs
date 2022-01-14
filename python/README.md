@@ -17,9 +17,9 @@ usage: main.py [-h] size N file
 Conway's Game of Life, in Python
 
 positional arguments:
-  size        Side length of simulated board.
-  N           Number of timesteps to simulate.
-  file        path to text file of board's initial state.
+  size        side length of simulated board
+  N           number of timesteps to simulate
+  file        path to text file of board's initial state
 
 optional arguments:
   -h, --help  show this help message and exit
