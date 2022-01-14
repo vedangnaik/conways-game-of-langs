@@ -1,6 +1,6 @@
 ## Requirements
 * **C++ toolchain** - Any toolchain supporting C++20.
-* **CMake** - Version 3.10 or greater.
+* **CMake** - Version 3.10 or greater. An Internet connection is required for `FetchContent` to download the `argparse` dependency.
 
 ## Build
 ```
@@ -18,16 +18,15 @@ $ ./main 25 500 test.txt
 ```
 Full help text for reference:
 ```
-$ ./main --help
-usage: main [-h] size N file
+$ ./main -h
+Usage: main [options] board_size num_iterations initial_state_file
 
-Conway's Game of Life, in C++
+Positional arguments:
+board_size              side length of simulated current
+num_iterations          number of iterations to simulate
+initial_state_file      path to text file of current's initial state
 
-positional arguments:
-  size        Side length of simulated board.
-  N           Number of timesteps to simulate.
-  file        path to text file of board's initial state.
-
-optional arguments:
-  -h, --help  show this help message and exit
+Optional arguments:
+-h --help               shows help message and exits
+-v --version            prints version information and exits
 ```

@@ -50,7 +50,7 @@ void saveAsPBMP1(const Board& board, const std::string& filename)
 
 int main(int argc, char* argv[])
 {
-    argparse::ArgumentParser parser("main");
+    argparse::ArgumentParser parser("main", "1.0.0");
     parser.add_argument("board_size")
         .help("side length of simulated current")
         .scan<'i', uint64_t>();
