@@ -18,4 +18,7 @@ jobs:
         python-version: '3.9.5'
         architecture: 'x64'
     - run: |
-        ls $GITHUB_WORKSPACE/testing
+        cd $GITHUB_WORKSPACE/testing/test_images
+        python ../../python/main.py 6 10 ../test_glider.txt
+        cd ..
+        sh run_diffs.sh
