@@ -1,0 +1,21 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+    - 'python/**'
+  workflow_dispatch:
+
+jobs:
+  run_python_tests:
+    name: Run Python Tests
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9.5'
+        architecture: 'x64'
+    - run: |
+        ls $GITHUB_WORKSPACE/testing
