@@ -1,4 +1,4 @@
-## Requirements
+## Install
 * **Java** - Any sufficiently recent version with support for multiline strings, `MessageFormat`, etc. will do. This program has been tested with Java 17.
 * **Maven** - Any sufficiently recent version with support for `Argparse4j`. This program has been tested with Maven v3.8.1.
 

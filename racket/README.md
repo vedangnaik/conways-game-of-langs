@@ -1,4 +1,4 @@
-## Requirements
+## Install
 * **Racket** - Any sufficiently recent version with support for `racket/cmdline`. This program has been tested with Racket v8.3.
 
 ## Build

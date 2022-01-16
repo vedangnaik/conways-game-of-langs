@@ -1,4 +1,4 @@
-## Requirements
+## Install
 * **node** - Any version with support for `Error`s, template strings, etc. This program has been tested with Node v17.3.0.
 * **npm** - Any sufficiently up-to-date version. This program has been tested with npm v8.3.0.
 

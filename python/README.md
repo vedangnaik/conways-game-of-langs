@@ -1,4 +1,4 @@
-## Requirements
+## Install
 * **Python 3.x** - Any version with support for f-strings, exceptions and `argparse`. This program has been tested with Python v3.9.5.
 
 ## Build

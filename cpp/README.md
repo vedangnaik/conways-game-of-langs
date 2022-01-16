@@ -1,4 +1,4 @@
-## Requirements
+## Install
 * **C++ toolchain** - Any toolchain supporting C++20.
 * **CMake** - Version 3.10 or greater. An Internet connection is required for `FetchContent` to download the `argparse` dependency.
 
