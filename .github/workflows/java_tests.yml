@@ -1,0 +1,34 @@
+name: Java
+
+on:
+  push:
+    branches: [master]
+    paths:
+    - 'java/**'
+  workflow_dispatch:
+
+jobs:
+  run_java_tests:
+    name: Run Java Tests
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install
+    - uses: actions/setup-java@v2
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+    
+    - name: Build
+      run: |
+        cd $GITHUB_WORKSPACE/java
+        mvn package
+
+    - name: Run
+      run: |
+        cd $GITHUB_WORKSPACE/testing/test_images
+        java -cp $GITHUB_WORKSPACE/java/target/main-1.0-SNAPSHOT.jar game_of_life.main.Main 6 10 ../test_glider.txt
+        cd ..
+        sh run_diffs.sh
