@@ -38,3 +38,6 @@ Follow the instructions in the `README.md` of the language you wish to use.
     - Windows: `make_video.ps1 .`
 
 The final video `out.mp4` will be generated in this directory. Enjoy!
+
+## Test Statuses
+[![Python](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/python_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/python_tests.yml)
