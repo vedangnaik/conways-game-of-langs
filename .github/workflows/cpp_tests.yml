@@ -10,10 +10,14 @@ on:
 jobs:
   run_cpp_tests:
     name: Run C++ Tests
-    runs-on: ubuntu-20.04
+    runs-on: windows-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Install
+      run: |
+        choco install cmake
     
     - name: Build
       run: |
@@ -22,10 +26,6 @@ jobs:
         cd build
         cmake -S .. -B .
         cmake --build .
-      shell: bash
-      env:
-        CC: clang
-        CXX: clang
 
     - name: Run
       run: |
