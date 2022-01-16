@@ -14,11 +14,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
-    - name: Install
-      run: |
-        sudo apt update
-        sudo apt install gcc-10 g++-10
     
     - name: Build
       run: |
@@ -29,8 +24,8 @@ jobs:
         cmake --build .
       shell: bash
       env:
-        CC: gcc-10
-        CXX: g++-10
+        CC: clang
+        CXX: clang
 
     - name: Run
       run: |
