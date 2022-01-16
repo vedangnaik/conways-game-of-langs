@@ -26,6 +26,10 @@ jobs:
         cd build
         cmake -S .. -B .
         cmake --build .
+      shell: bash
+      env:
+        CC: clang
+        CXX: clang
 
     - name: Run
       run: |
@@ -33,3 +37,4 @@ jobs:
         ./$GITHUB_WORKSPACE/cpp/build/main 6 10 ../test_glider.txt
         cd ..
         sh run_diffs.sh
+      shell: bash
