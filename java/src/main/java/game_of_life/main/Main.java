@@ -3,10 +3,12 @@ package game_of_life.main;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -20,12 +22,15 @@ public class Main
         try {
             PrintWriter p = new PrintWriter(filename);
             p.write(MessageFormat.format("P1\n{0} {1}\n", board.size, board.size));
+            ArrayList<String> pixels = new ArrayList<>();
             for (int row = 0; row < board.size; row++) {
+                ArrayList<String> r = new ArrayList<>();
                 for (int col = 0; col < board.size; col++) {
-                    p.write(MessageFormat.format("{0} ", board.isSet(row, col) ? "1" : "0"));
+                    r.add(MessageFormat.format("{0}", board.isSet(row, col) ? "1" : "0"));
                 }
-                p.write("\n");
+                pixels.add(String.join(" ", r));
             }
+            p.write(String.join("\n", pixels));
             p.close();
         } catch (IOException ignored) {}
     }
