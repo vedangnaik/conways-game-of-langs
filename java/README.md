@@ -12,11 +12,11 @@ $ mvn package
 ## Run
 Simulate 500 turns of a game on a 25x25 board with initial state read from `test.txt`. Output images will be placed in the directory the command is run from.
 ```
-$ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main 25 500 test.txt
+$ java -jar target/main-1.0-SNAPSHOT.jar 25 500 test.txt
 ```
 Full help text for reference:
 ```
-$ java -cp target/main-1.0-SNAPSHOT.jar game_of_life.main.Main -h
+$ java -jar target/main-1.0-SNAPSHOT.jar -h
 usage: game_of_life.main.Main [-h] size N file
 
 Conway's Game of Life, in Java
