@@ -8,12 +8,8 @@ class Board {
     constructor(size) {
         this.size = size;
         this.#board = []
-        for (let row = 0; row < size; row++) {
-            this.#board.push([])
-            for (let col = 0; col < size; col++) {
-                this.#board[row].push(false)
-            }
-        }
+        this.#board = new Array(this.size).fill(undefined)
+            .map(_ => new Array(this.size).fill(false));
     }
 
     set(row, col) {
@@ -37,13 +33,14 @@ function mod(n, m) {
 
 function saveBoardAsPBMP1(board, filename) {
     let filestring = `P1\n${board.size} ${board.size}\n`;
-    for (let row = 0; row < board.size; row++) {
-        for (let col = 0; col < board.size; col++) {
-            filestring += `${board.isSet(row, col) ? "1" : "0"} `;
-        }
-        filestring += "\n";
-    }
-    fs.writeFileSync(filename, filestring);
+    s = new Array(board.size).fill("")
+        .map((_, row) => {
+            return new Array(board.size).fill("")
+                .map((_, col) => board.isSet(row, col) ? "1" : "0")
+                .join(" ");
+        })
+        .join("\n")
+    fs.writeFileSync(filename, filestring + s);
 }
 
 function getNumNeighbors(board, row, col) {
@@ -78,16 +75,18 @@ function getNumNeighbors(board, row, col) {
     if (!fileValidationRe.test(fileString)) {
         throw new TypeError("Initial state file must satisfy regular expression ^(\\d+\\s\\d+(\\r\\n|\\r|\\n))+$.");
     }
-    fileString.split(/\r?\n/).forEach(line => board.set(...line.split(' ').map(coord => parseInt(coord))));
+    fileString.split(/\r?\n/).forEach(line => {
+        if (line !== "") board.set(...line.split(' ').map(coord => parseInt(coord)));
+    });
 
     for (let timestep = 0; timestep < args.numTimesteps; timestep++) {
         // Save file
         saveBoardAsPBMP1(board, `${timestep}.pbm`);
 
         // Compute next step
-        next = new Board(size);
-        for (let row = 0; row < size; row++) {
-            for (let col = 0; col < size; col++) {
+        next = new Board(args.boardSize);
+        for (let row = 0; row < args.boardSize; row++) {
+            for (let col = 0; col < args.boardSize; col++) {
                 const numNeighbors = getNumNeighbors(board, row, col);
                 if (board.isSet(row, col)) {
                     if (2 <= numNeighbors && numNeighbors <= 3) next.set(row, col);

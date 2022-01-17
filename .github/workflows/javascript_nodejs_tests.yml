@@ -1,0 +1,33 @@
+name: JavaScript NodeJS
+
+on:
+  push:
+    branches: [master]
+    paths:
+    - 'javascript/nodejs/**'
+  workflow_dispatch:
+
+jobs:
+  run_javascript_nodejs_tests:
+    name: Run JavaScript NodeJS Tests
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install
+      uses: actions/setup-node@v2
+      with:
+        node-version: '17'
+    
+    - name: Build
+      run: |
+        cd $GITHUB_WORKSPACE/javascript/nodejs
+        npm i
+
+    - name: Run
+      run: |
+        cd $GITHUB_WORKSPACE/testing/test_images
+        node $GITHUB_WORKSPACE/javascript/nodejs/main.js 6 10 ../test_glider.txt
+        cd ..
+        sh run_diffs.sh
