@@ -45,3 +45,5 @@ The final video `out.mp4` will be generated in this directory. Enjoy!
 [![Java](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/java_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/java_tests.yml)
 
 [![C++](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml)
+
+[![JavaScript NodeJS](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/javascript_nodejs_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/javascript_nodejs_tests.yml)
