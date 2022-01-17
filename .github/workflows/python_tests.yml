@@ -19,8 +19,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.9.5'
-        architecture: 'x64' 
-    
+        architecture: 'x64'
+
     - name: Run
       run: |
         cd $GITHUB_WORKSPACE/testing/test_images

@@ -21,8 +21,7 @@ class Board:
 def save_as_PBMP1(board, filename):
     with open(filename, "w") as f:
         f.write(f"P1\n{board.size} {board.size}\n")
-        for row in range(board.size):
-            f.write(" ".join(['1' if board.is_set(row, col) else '0' for col in range(board.size)]) + "\n")
+        f.write("\n".join([" ".join(['1' if board.is_set(row, col) else '0' for col in range(board.size)]) for row in range(board.size)]))
 
 def get_num_neighbors(board, row, col):
     count = 0
