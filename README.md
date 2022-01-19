@@ -47,3 +47,5 @@ The final video `out.mp4` will be generated in this directory. Enjoy!
 [![C++](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml)
 
 [![JavaScript NodeJS](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/javascript_nodejs_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/javascript_nodejs_tests.yml)
+
+[![Racket](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/racket_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/racket_tests.yml)

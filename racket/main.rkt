@@ -8,29 +8,21 @@
   (define b
     (build-vector
       s
-      (lambda (i)
+      (lambda (_)
         (build-vector
           s
-          (lambda (i)
-            #f
-          )
-        )
-      )
-    )
-  )
+          (lambda (_)
+            #f)))))
+
   (super-new)
 
   (define/public (is-set row col)
-    (vector-ref (vector-ref b row) col)
-  )
+    (vector-ref (vector-ref b row) col))
 
   (define/public (set row col)
-    (vector-set! (vector-ref b row) col #t)
-  )
+    (vector-set! (vector-ref b row) col #t))
 
-  (define/public (get-size)
-    s
-  )
+  (define/public (get-size) s)
 ))
 
 (define (saveBoardAsPBMP1 board filename)
@@ -71,13 +63,14 @@
   count
 )
 
-(define (main)
+; Main function as lambda IIFE
+((lambda ()
   ; Parse command line args
-  (define argv (command-line
-    #:program "main"
-    #:args (board-size simulation-timesteps inital-state-file)
-    (list board-size simulation-timesteps inital-state-file)
-  ))
+  (define argv 
+    (command-line
+      #:program "main"
+      #:args (board-size simulation-timesteps inital-state-file)
+      (list board-size simulation-timesteps inital-state-file)))
   (define bs  (list-ref argv 0))
   (define st  (list-ref argv 1))
   (define isf (list-ref argv 2))
@@ -85,21 +78,15 @@
   (define user-size
     (if (string->number bs)
       (string->number bs)
-      (raise (format "'~a' is not a valid integer." bs))
-    )
-  )
+      (raise (format "'~a' is not a valid integer." bs))))
   (define user-num-timesteps
     (if (string->number st)
       (string->number st)
-      (raise (format "'~a' is not a valid integer." st))
-    )
-  )
+      (raise (format "'~a' is not a valid integer." st))))
   (define user-inital-state-file
     (if (file-exists? isf)
       isf
-      (raise (format "'~a' is not a valid file." isf))
-    )
-  )
+      (raise (format "'~a' is not a valid file." isf))))
 
   ; Set up board
   (define board (new Board% [size user-size]))
@@ -114,21 +101,17 @@
           (define i (string->number c))
           (cond
             [(not (< -1 i size)) (raise (format "~a is out of bounds for board of size ~a." i size))]
-            [else i]
-          )
-        )
-        (string-split file-str)
-      )
-      (raise (format "The contents of ~a are malformed." user-inital-state-file))
-    )
-  )
+            [else i]))
+        (string-split file-str))
+      (raise (format "The contents of ~a are malformed." user-inital-state-file))))
 
   ; Apply to board
-  (for ([i (in-range 0 (length coords) 2)])
-    (define x (list-ref coords i))
-    (define y (list-ref coords (+ i 1)))
-    (send board set x y)
-  )
+  (map
+    (lambda (i) 
+      (define x (list-ref coords i))
+      (define y (list-ref coords (+ i 1)))
+      (send board set x y))
+    (range 0 (length coords) 2))
 
   ; Main simulation loop
   (for ([timestep (in-range user-num-timesteps)])
@@ -140,13 +123,8 @@
         (define num-neighbors (getNumNeighbors board row col))
         (if (send board is-set row col)
           (if (<= 2 num-neighbors 3)   (send nextBoard set row col) void)
-          (if (equal? num-neighbors 3) (send nextBoard set row col) void)
-        )
-      )
-    )
-    (set! board nextBoard)
-  )
-  0
-)
+          (if (equal? num-neighbors 3) (send nextBoard set row col) void))))
+    (set! board nextBoard))
 
-(main)
+  0
+))
