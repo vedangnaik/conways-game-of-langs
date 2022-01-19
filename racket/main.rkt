@@ -5,7 +5,7 @@
   (init size)
 
   (define s size)
-  (define b 
+  (define b
     (build-vector
       s
       (lambda (i)
@@ -37,21 +37,16 @@
   (call-with-output-file filename #:exists 'replace
     (lambda (out)
       (define size (send board get-size))
-      
       (fprintf out "P1\n~a ~a\n" size size)
-      (for ([row (in-range size)])
-        (for ([col (in-range size)])
-          (fprintf out "~a " 
-            (if (send board is-set row col)
-              "1"
-              "0"
-            )
-          )
-        )
-        (fprintf out "\n")
-      )
-    )
-  )
+      (fprintf out (string-join (map
+        (lambda (row)
+          (string-join (map
+            (lambda (col)
+              (if (send board is-set row col) "1" "0"))
+            (range size))
+            " "))
+          (range size))
+        "\n"))))
   (void)
 )
 
@@ -78,7 +73,7 @@
 
 (define (main)
   ; Parse command line args
-  (define argv (command-line 
+  (define argv (command-line
     #:program "main"
     #:args (board-size simulation-timesteps inital-state-file)
     (list board-size simulation-timesteps inital-state-file)
@@ -112,7 +107,7 @@
 
   ; Parse input file
   (define file-str (port->string (open-input-file user-inital-state-file)))
-  (define coords 
+  (define coords
     (if (regexp-match-positions #rx"^([0-9]+ [0-9]+(?:\r\n|\r|\n))+$" file-str)
       (map
         (lambda (c)

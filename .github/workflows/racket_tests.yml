@@ -1,0 +1,31 @@
+name: Racket
+
+on:
+  push:
+    branches: [master]
+    paths:
+    - 'racket/**'
+  workflow_dispatch:
+
+jobs:
+  run_racket_tests:
+    name: Run Racket Tests
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install
+      uses: Bogdanp/setup-racket@v1.7
+      with:
+        architecture: 'x64'
+        distribution: 'full'
+        variant: 'CS'
+        version: '8.3'
+
+    - name: Run
+      run: |
+        cd $GITHUB_WORKSPACE/testing/test_images
+        racket ../../racket/main.rkt 6 10 ../test_glider.txt
+        cd ..
+        sh run_diffs.sh
