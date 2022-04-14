@@ -1,0 +1,5 @@
+*
+
+!.gitignore
+!game-of-langs-haskell.cabal
+!main.hs
