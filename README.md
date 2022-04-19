@@ -40,12 +40,14 @@ Follow the instructions in the `README.md` of the language you wish to use.
 The final video `out.mp4` will be generated in this directory. Enjoy!
 
 ## Test Statuses
-[![Python](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/python_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/python_tests.yml)
+[![C++](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml)
+
+[![Haskell](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/haskell_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/haskell_tests.yml)
 
 [![Java](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/java_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/java_tests.yml)
 
-[![C++](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/cpp_tests.yml)
-
 [![JavaScript NodeJS](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/javascript_nodejs_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/javascript_nodejs_tests.yml)
+
+[![Python](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/python_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/python_tests.yml)
 
 [![Racket](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/racket_tests.yml/badge.svg)](https://github.com/vedangnaik/conways_game_of_langs/actions/workflows/racket_tests.yml)
