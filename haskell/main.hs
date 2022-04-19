@@ -13,13 +13,13 @@ import Data.Sequence (mapWithIndex, fromList)
 
 data ArgParseResult = Help | OK Int Int FilePath deriving Show
 
-data Board = Board { _m :: Map [Int] Bool, _size :: Int}
+data Board = Board { _m :: Map (Int, Int) Bool, _size :: Int}
 instance Show Board where
     show (Board m size) =
         intercalate "\n" $ map rowToStr [0..size - 1]
         where
             rowToStr :: Int -> String
-            rowToStr y = unwords $ map (\x -> if member [y, x] m then "1" else "0") [0..size - 1]
+            rowToStr y = unwords $ map (\x -> if member (y, x) m then "1" else "0") [0..size - 1]
 
 parseArgs :: [String] -> ArgParseResult
 parseArgs args
@@ -35,13 +35,42 @@ parseArgs args
             else Help
     | otherwise = Help
 
-nextBoard :: Board -> Board
-nextBoard (Board m s) = Board m s
+tuplify :: [Int] -> (Int, Int)
+tuplify l = (head l, l !! 1)
 
-makeBoard :: [[Int]] -> Int -> Board
+getNumNeighbors :: Board -> (Int, Int) -> Int
+getNumNeighbors (Board m size) (x, y) =
+    let
+        neighbors = [
+            ((x - 1) `mod` size, (y - 1) `mod` size),
+            (x       `mod` size, (y - 1) `mod` size),
+            ((x + 1) `mod` size, (y - 1) `mod` size),
+            ((x - 1) `mod` size, y       `mod` size),
+            ((x + 1) `mod` size, y       `mod` size),
+            ((x - 1) `mod` size, (y + 1) `mod` size),
+            (x       `mod` size, (y + 1) `mod` size),
+            ((x + 1) `mod` size, (y + 1) `mod` size)]
+    in
+        sum $ map (\neighbor -> if member neighbor m then 1 else 0) neighbors
+
+nextBoard :: Board -> Board
+nextBoard (Board m size) =
+    Board (foldr applyGameOfLifeRules empty coords) size
+    where
+        coords = [(x, y) | x <- [0..size - 1], y <- [0..size - 1]]
+        applyGameOfLifeRules :: (Int, Int) -> Map (Int, Int) Bool -> Map (Int, Int) Bool
+        applyGameOfLifeRules coord newM =
+            let
+                numNeighbors = getNumNeighbors (Board m size) coord
+            in
+                if (not (member coord m) && numNeighbors == 3) || (member coord m  && (numNeighbors == 2 || numNeighbors == 3)) 
+                    then insert coord True newM 
+                else newM
+
+makeBoard :: [(Int, Int)] -> Int -> Board
 makeBoard coords = Board (foldr insertCoord empty coords)
     where
-        insertCoord :: [Int] -> Map [Int] Bool -> Map [Int] Bool
+        insertCoord :: (Int, Int) -> Map (Int, Int) Bool -> Map (Int, Int) Bool
         insertCoord coord board = insert coord True board
 
 saveBoardAsPBMP1 :: FilePath -> Board -> IO ()
@@ -61,7 +90,7 @@ main = catch (do
                 if not (any ((not . null) . filter (> size)) coords) then do
                     let
                         boards :: [Board]
-                        boards = scanr (\_ board -> nextBoard board) (makeBoard coords size) [1..n-1]
+                        boards = scanl (\board _ -> nextBoard board) (makeBoard (map tuplify coords) size) [1..n-1]
                         writes = mapWithIndex (\i board -> saveBoardAsPBMP1 (show i ++ ".pbm") board) $ fromList boards
                     sequence_ writes
                 else
@@ -70,4 +99,4 @@ main = catch (do
     ) handler
     where
         handler :: IOError -> IO ()
-        handler e = print e
+        handler = print
