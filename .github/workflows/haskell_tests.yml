@@ -1,0 +1,30 @@
+name: Haskell
+
+on:
+  push:
+    branches: [master]
+    paths:
+    - 'haskell/**'
+  workflow_dispatch:
+
+jobs:
+  run_python_tests:
+    name: Run Haskell Tests
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install
+      uses: haskell/actions/setup@v2
+      with:
+        ghc-version: '8.10.7'
+        cabal-version: '3.6.2.0'
+
+    - name: Run
+      run: |
+        cd $GITHUB_WORKSPACE/haskell
+        cabal run . 6 10 ../testing/test_glider.txt 
+        mv *.pbm ../testing/test_images/
+        cd $GITHUB_WORKSPACE/testing
+        sh run_diffs.sh
